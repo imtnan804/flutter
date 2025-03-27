@@ -1,109 +1,162 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      // Core properties of MaterialApp
+      title: 'Flutter Full Scaffold Example',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+        secondary: Colors.green, // Replacing accentColor with colorScheme.secondary
+        ),
+
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,  // Disable the debug banner
+      home: HomePage(),
+      routes: {
+        '/newPage': (context) => NewPage(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // AppBar properties
+      appBar: AppBar(
+        title: Text('Home Page'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 10,  // Shadow depth
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {},
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      
+      // Drawer properties
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text('John Doe'),
+              accountEmail: Text('john.doe@example.com'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.orange,
+                child: Text('JD'),
+              ),
+            ),
+            ListTile(
+              title: Text('Item 1'),
+              onTap: () {},
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+      
+      // Bottom Navigation Bar properties
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: 0,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          // Handle navigation when a bottom item is tapped
+        },
+      ),
+      
+      // FloatingActionButton properties
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/newPage');
+        },
+        child: Icon(Icons.navigate_next),
+        backgroundColor: Colors.green,
+        tooltip: 'Go to new page',
+      ),
 
-  final String title;
+      // Body content
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/newPage');
+          },
+          child: Text('Navigate to New Page'),
+        ),
+      ),
+      
+      // Bottom Sheet properties
+      persistentFooterButtons: [
+        ElevatedButton(
+          onPressed: () {},
+          child: Text('Persistent Button'),
+        ),
+      ],
 
+      // SnackBar example
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+}
+
+class NewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/logo.jpg', // Make sure to place your logo image in the assets folder.
-              height: 40,
-            ),
-            const SizedBox(width: 10),
-            Text(title),
-          ],
+        title: Text('New Page'),
+        backgroundColor: Colors.red,
+      ),
+      body: Center(
+        child: Text(
+          'Welcome to the New Page!',
+          style: TextStyle(fontSize: 24),
         ),
       ),
-      body: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Push the footer to the bottom
-        children: <Widget>[
-          // Main content section
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    // About Section
-                    const Text(
-                      'About Us',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Baba Guru Nanak University (BGNU) Baba Guru Nanak University BGNU is a Public sector university located in District Nankana Sahib, in the Punjab region of Pakistan. It plans to facilitate between 10,000 to 15,000 students from all over the world at the university. The foundation stone of the university was laid on October 28, 2019 ahead of 550th of Guru Nanak Gurpurab by the Prime Minister of Pakistan. On July 02, 2020 Government of Punjab has formally passed Baba Guru Nanak University Nankana Sahib Act 2020 X of 2020. The plan behind the establishment of this university to be modeled along the lines of world renowned universities with focus on languages and Punjab Studies offering faculties in Medicine, Pharmacy, Engineering, Computer science, Languages, Music and Social sciences. The initial cost Rupees 6 billion has already been allocated in the budget for this project to be spent in three phases on construction of Baba Guru Nanak University Nankana Sahib. The development work of Phase-I has already been started by Communication and Works Department of Government of Punjab..',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 20),
-            
-                    
-                    const SizedBox(height: 10),
-                    Image.asset(
-                      'assets/pic.jpg', // Replace with your image in assets.
-                      height: 150, // Adjusted image size without BoxFit
-                      width: double.infinity,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Footer Section
-          Container(
-            width: double.infinity, // Ensure the footer spans the entire width
-            color: Colors.deepPurple, // Footer background color
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                const Text(
-                  '© 2025 Your BGNU. All Rights Reserved.',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Color.fromARGB(255, 255, 255, 255)),
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Contact: info@yourcompany.com | Terms of Service | Privacy Policy',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Icon(Icons.arrow_back),
+        backgroundColor: Colors.red,
+        tooltip: 'Back to Home Page',
       ),
     );
   }
