@@ -1,102 +1,92 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'view_data_page.dart';
-import 'home_screen.dart';  // Make sure this import matches the filename
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
+}
+
+class Post {
+  final int id;
+  final String title;
+  final String body;
+
+  Post({required this.id, required this.title, required this.body});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SQLite Text Saver',
-      theme: ThemeData(primarySwatch: Colors.indigo),
-      home: TextBoxButtonPage(),
+      title: 'Fetch API Demo',
+      home: PostListPage(),
     );
   }
 }
 
-class TextBoxButtonPage extends StatefulWidget {
+class PostListPage extends StatefulWidget {
   @override
-  _TextBoxButtonPageState createState() => _TextBoxButtonPageState();
+  _PostListPageState createState() => _PostListPageState();
 }
 
-class _TextBoxButtonPageState extends State<TextBoxButtonPage> {
-  final TextEditingController _controller = TextEditingController();
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+class _PostListPageState extends State<PostListPage> {
+  late Future<List<Post>> _posts;
 
-  void _handleButtonPress() async {
-    String enteredText = _controller.text.trim();
-    if (enteredText.isEmpty) return;
+  Future<List<Post>> fetchPosts() async {
+    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
 
-    await _dbHelper.insertText(enteredText);
-    _controller.clear();
+    if (response.statusCode == 200) {
+      List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((item) => Post.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Saved to database: $enteredText')),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _posts = fetchPosts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Text Input Page'),
-        centerTitle: true,
-        backgroundColor: Colors.indigo,
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.indigo),
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context); // Close drawer first
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
+      appBar: AppBar(title: Text('Posts from API')),
+      body: FutureBuilder<List<Post>>(
+        future: _posts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No posts found.'));
+          } else {
+            final posts = snapshot.data!;
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    title: Text(post.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(post.body),
+                  ),
                 );
               },
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Enter text',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _handleButtonPress,
-              child: Text('Save to DB'),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ViewDataPage()),
-                );
-              },
-              child: Text('View Saved Data'),
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
   }
